@@ -30,11 +30,12 @@ resource cloudflare_workers_kv_namespace "kv_namespaces" {
 }
 
 resource cloudflare_worker_route "worker_route" {
-  for_each = var.routes
+  # NOTE: note the usage of local to get the defaulted values
+  count = length(local.routes)
 
   # Use every route zone id, or the default zone id
-  zone_id = lookup(each.value, "zone_id", var.cloudflare.default_zone_id)
-  pattern = each.value.pattern
+  zone_id = local.routes[count.index].zone_id
+  pattern = local.routes[count.index].pattern
 
   script_name = cloudflare_worker_script.worker_script.name
 }
@@ -42,15 +43,16 @@ resource cloudflare_worker_route "worker_route" {
 
 # DNS record
 resource cloudflare_record "cloudflare_dns_record" {
-  for_each = var.dns_records
+  # NOTE: note the usage of local to get the defaulted values
+  count = length(local.dns_records)
 
   # Use every route zone id, or the default zone id
-  zone_id = lookup(each.value, "zone_id", var.cloudflare.default_zone_id)
+  zone_id = local.dns_records[count.index].zone_id
 
-  name = each.value.name
-  type = each.value.type
+  name = local.dns_records[count.index].name
+  type = local.dns_records[count.index].type
   # was "@" but cloudflare translates to top level domain
-  value = each.value.value
+  value = local.dns_records[count.index].value
 
-  proxied = lookup(each.value, "proxied", true)
+  proxied = local.dns_records[count.index].proxied
 }

@@ -1,7 +1,9 @@
 variable cloudflare {
   type = object({
-    default_zone_id = optional(string)  
+    default_zone_id = optional(string)
   })
+
+  default = {}
 }
 
 variable script {
@@ -14,21 +16,22 @@ variable script {
 
 variable kv_namespaces {
   type = set(string)
+  default = []
 }
 
 variable routes {
-  type = set(object({
+  type = list(object({
     zone_id = optional(string)
     pattern = string
   }))
 }
 
 variable dns_records {
-  type = set(object({
-    zone_id = optional(string)
+  type = list(object({
     name = string
     type = string
     value = string
     proxied = optional(bool)
+    zone_id = optional(string)
   }))
 }
