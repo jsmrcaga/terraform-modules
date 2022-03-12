@@ -16,15 +16,6 @@ resource github_repository "repo" {
   topics = var.topics
 
   vulnerability_alerts = var.vulnerability_alerts
-
-  pages {
-    cname = var.pages.cname
-
-    source {
-      branch = var.pages.branch
-      path = var.pages.path
-    }
-  }
 }
 
 resource github_actions_secret "actions_secrets" {
@@ -37,23 +28,36 @@ resource github_actions_secret "actions_secrets" {
 }
 
 resource github_branch_protection "branch_protection" {
-  for_each = var.branches
+  repository_id = github_repository.repo.id
+
+  for_each = local.branches
   pattern = each.key
   
   # Force status checks for admins
-  enforce_admins = lookup(each.value, "enforce_admins", true)
+  enforce_admins = each.value.enforce_admins
 
   # Allows branch to be deleted
-  allows_deletions = lookup(each.value, "allows_deletions", false)
+  allows_deletions = each.value.allows_deletions
 
-  require_signed_commits = lookup(each.value, "require_signed_commits", false)
+  require_signed_commits = each.value.require_signed_commits
 
   # Forces no merge commits
-  required_linear_history = lookup(each.value, "required_linear_history", true)
+  required_linear_history = each.value.required_linear_history
 
   # List of people that can push to the branch
-  push_restrictions = lookup(each.value, "push_restrictions", null)
+  push_restrictions = each.value.push_restrictions
 
-  required_pull_request_reviews = lookup(each.value, "required_pull_request_reviews", null)
-  required_status_checks = lookup(each.value, "required_status_checks", null)
+  required_pull_request_reviews {
+    dismiss_stale_reviews = each.value.required_pull_request_reviews.dismiss_stale_reviews
+    restrict_dismissals = each.value.required_pull_request_reviews.restrict_dismissals
+    dismissal_restrictions = each.value.required_pull_request_reviews.dismissal_restrictions
+    pull_request_bypassers = each.value.required_pull_request_reviews.pull_request_bypassers
+    require_code_owner_reviews = each.value.required_pull_request_reviews.require_code_owner_reviews
+    required_approving_review_count = each.value.required_pull_request_reviews.required_approving_review_count
+  }
+
+  required_status_checks {
+    strict = each.value.required_status_checks.strict
+    contexts = each.value.required_status_checks.contexts
+  }
 }

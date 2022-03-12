@@ -58,16 +58,8 @@ variable allow_auto_merge {
   default = false
 }
 
-# Pages
-variable pages {
-  type = object({
-    branch = string
-    cname = optional(string)
-    path = optional(string)
-  })
-  default = {}
-}
 
+# Actions
 variable actions {
   type = object({
     secrets = map(string)  
@@ -78,26 +70,27 @@ variable actions {
   }
 }
 
+# Branch protection
 variable branches {
-  default = {}
-
   type = map(object({
     enforce_admins = optional(bool)
     allows_deletions = optional(bool)
     require_signed_commits = optional(bool)
     required_linear_history = optional(bool)
-    push_restrictions = optional(bool)
-    required_status_checks = optional(object({
-      strict = bool
-      contexts = set(string)  
-    }))
-    required_pull_request_reviews = optional(object({
+    push_restrictions = optional(set(string))
+    required_status_checks = object({
+      strict = optional(bool)
+      contexts = optional(set(string))
+    })
+    required_pull_request_reviews = object({
       dismiss_stale_reviews = optional(bool)
       restrict_dismissals = optional(bool)
       dismissal_restrictions = optional(list(string))
       pull_request_bypassers = optional(list(string))
       require_code_owner_reviews = optional(bool)
       required_approving_review_count = optional(number)
-    }))
+    })
   }))
+
+  default = {}
 }

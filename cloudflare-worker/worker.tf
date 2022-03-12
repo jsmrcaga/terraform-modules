@@ -5,7 +5,7 @@ resource cloudflare_worker_script "worker_script" {
   dynamic "kv_namespace_binding" {
     # Create a binding for every kv namespace
     for_each = cloudflare_workers_kv_namespace.kv_namespaces
-    iterator = "each"
+    iterator = each
 
     content {
       name = each.key
@@ -15,7 +15,7 @@ resource cloudflare_worker_script "worker_script" {
 
   dynamic "secret_text_binding" {
     for_each = var.script.secrets
-    iterator = "each"
+    iterator = each
 
     content {
       name = each.key
