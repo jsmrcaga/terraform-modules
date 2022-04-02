@@ -8,8 +8,8 @@ resource cloudflare_worker_script "worker_script" {
     iterator = each
 
     content {
-      name = each.key
-      namespace_id = each.value
+      name = each.value.title
+      namespace_id = each.value.id
     }
   }
 
