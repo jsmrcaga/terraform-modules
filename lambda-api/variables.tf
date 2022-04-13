@@ -12,6 +12,7 @@ variable lambda_runtime {
 
 variable lambda_filename {
 	type = string
+	default = null
 }
 
 variable lambda_env {

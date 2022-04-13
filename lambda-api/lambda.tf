@@ -1,4 +1,5 @@
 resource aws_iam_role lambda_role {
+    tags = {}
     name = "${var.function_name}_role"
 
     assume_role_policy = <<EOF
@@ -19,13 +20,16 @@ EOF
 }
 
 # Main lambda
-resource aws_lambda_function lambda_function {
+resource aws_lambda_function "lambda_function" {
     function_name = var.function_name
     role  = aws_iam_role.lambda_role.arn
 
     handler = var.lambda_handler
     runtime = var.lambda_runtime
     filename = var.lambda_filename
+
+    layers = []
+    tags = {}
 
     environment {
         variables = var.lambda_env
@@ -37,6 +41,7 @@ resource aws_lambda_function lambda_function {
 resource aws_apigatewayv2_api api {
     name = "${var.function_name}_api"
     protocol_type = "HTTP" // could be websocket
+    tags = {}
 
     cors_configuration {
         allow_origins = ["*"]
@@ -46,54 +51,67 @@ resource aws_apigatewayv2_api api {
     }
 }
 
-resource aws_apigatewayv2_integration api_integration {
+resource aws_apigatewayv2_integration "api_integration" {
     api_id = aws_apigatewayv2_api.api.id
     integration_type = "AWS_PROXY"
 
     integration_method = "POST"
     integration_uri = aws_lambda_function.lambda_function.invoke_arn
     payload_format_version = "2.0"
+
+    request_parameters = {}
+    request_templates = {}
 }
 
-resource aws_apigatewayv2_route route_default {
+resource aws_apigatewayv2_route "route_default" {
     route_key = "$default"
     api_id = aws_apigatewayv2_api.api.id
     target = "integrations/${aws_apigatewayv2_integration.api_integration.id}"
+
+    authorization_scopes = []
+    request_models = {}
 }
 
 resource aws_apigatewayv2_route route_options {
     route_key = "OPTIONS /{proxy+}"
     api_id = aws_apigatewayv2_api.api.id
     target = "integrations/${aws_apigatewayv2_integration.api_integration.id}"
+
+    authorization_scopes = []
+    request_models = {}
 }
 
 
 # Logging for APIGateway
-resource aws_cloudwatch_log_group api_gateway_logs {
+resource aws_cloudwatch_log_group "api_gateway_logs" {
     count = var.include_api_logs ? 1 : 0
     name = "${var.function_name}_APIGateway_Logs"
+    tags = {}
 }
 
-resource aws_apigatewayv2_stage default_stage {
+resource aws_apigatewayv2_stage "default_stage" {
     api_id = aws_apigatewayv2_api.api.id
     name   = "$default"
 
     auto_deploy = true
 
+    stage_variables = {}
+    tags = {}
+
     dynamic access_log_settings {
         # Hack to add an optional block by paasing an empty array
         for_each = var.include_api_logs ? [1] : []
         content {
-            destination_arn = aws_cloudwatch_log_group.api_gateway_logs.arn
+            # Index is set because we have a "count" on the resource
+            destination_arn = aws_cloudwatch_log_group.api_gateway_logs[0].arn
             format = "{ \"requestId\":\"$context.requestId\", \"ip\": \"$context.identity.sourceIp\", \"requestTime\":\"$context.requestTime\", \"httpMethod\":\"$context.httpMethod\",\"routeKey\":\"$context.routeKey\", \"status\":\"$context.status\",\"protocol\":\"$context.protocol\", \"responseLength\":\"$context.responseLength\", \"integrationErrorMessage\": \"$context.integrationErrorMessage\" }"
         }
     }
 }
 
 
-
 # Permission for APIGateway
-resource aws_lambda_permission api_permission {
+resource aws_lambda_permission "api_permission" {
     action = "lambda:InvokeFunction"
     function_name = var.function_name
     principal = "apigateway.amazonaws.com"
@@ -102,7 +120,7 @@ resource aws_lambda_permission api_permission {
 
 
 # Logs
-resource aws_iam_role_policy lambda_role_logs_policy {
+resource aws_iam_role_policy "lambda_role_logs_policy" {
     count = var.include_lambda_logs ? 1 : 0
     role   = aws_iam_role.lambda_role.id
     policy = <<POLICY
