@@ -48,7 +48,6 @@ resource aws_lambda_function "lambda_function" {
     }
 }
 
-
 # API Gateway Routing
 resource aws_apigatewayv2_api api {
     name = "${var.function_name}_api"
@@ -119,6 +118,18 @@ resource aws_apigatewayv2_stage "default_stage" {
             format = "{ \"requestId\":\"$context.requestId\", \"ip\": \"$context.identity.sourceIp\", \"requestTime\":\"$context.requestTime\", \"httpMethod\":\"$context.httpMethod\",\"routeKey\":\"$context.routeKey\", \"status\":\"$context.status\",\"protocol\":\"$context.protocol\", \"responseLength\":\"$context.responseLength\", \"integrationErrorMessage\": \"$context.integrationErrorMessage\" }"
         }
     }
+}
+
+# Custom domain
+module custom_domain {
+    source = "./custom-domain"
+    count = var.custom_domain == null ? 0 : 1
+
+    domain = var.custom_domain
+
+    api_id = aws_apigatewayv2_api.api.id
+    # hardcoded stage name
+    stage_id = aws_apigatewayv2_stage.default_stage.id
 }
 
 

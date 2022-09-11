@@ -37,6 +37,11 @@ variable include_lambda_logs {
 	default = true
 }
 
+variable custom_domain {
+	type = string
+	default = null
+}
+
 variable deploy_empty {
 	type = bool
 	default = true

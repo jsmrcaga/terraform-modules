@@ -5,3 +5,7 @@ output "api_gateway_api" {
 output "api_gateway_api_integration" {
   value = aws_apigatewayv2_integration.api_integration
 }
+
+output "domain_validation_records" {
+  value = module.custom_domain[0].validation_records
+}
