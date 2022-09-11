@@ -1,3 +1,15 @@
+# We do this to deploy an empty lambda
+data archive_file "dummy_zip" {
+    count = var.deploy_empty ? 1 : 0
+    type = "zip"
+    output_path = "${path.module}/dummy_lambda.zip"
+
+    source {
+        content = "empty"
+        filename = "dummy.txt"
+    }
+}
+
 resource aws_iam_role lambda_role {
     tags = {}
     name = "${var.function_name}_role"
@@ -26,7 +38,7 @@ resource aws_lambda_function "lambda_function" {
 
     handler = var.lambda_handler
     runtime = var.lambda_runtime
-    filename = var.lambda_filename
+    filename = var.deploy_empty ? data.archive_file.dummy_zip[0].output_path : var.lambda_filename
 
     layers = []
     tags = {}

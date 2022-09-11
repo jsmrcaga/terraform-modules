@@ -1,3 +1,10 @@
+variable aws {
+	type = object({
+		shared_credentials_file = string
+		region = optional(string)
+	})
+}
+
 variable function_name {
 	type = string
 }
@@ -28,4 +35,10 @@ variable include_api_logs {
 variable include_lambda_logs {
 	type = bool
 	default = true
+}
+
+variable deploy_empty {
+	type = bool
+	default = true
+	description = "Creates an empty zip file to deploy, since AWS expects a file"
 }
