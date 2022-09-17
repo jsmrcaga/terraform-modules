@@ -9,3 +9,7 @@ output "api_gateway_api_integration" {
 output "domain_validation_records" {
   value = module.custom_domain[0].validation_records
 }
+
+output "api_gateway_domain" {
+  value = module.custom_domain[0].api_gateway_domain
+}
