@@ -18,15 +18,6 @@ resource github_repository "repo" {
   vulnerability_alerts = var.vulnerability_alerts
 }
 
-resource github_actions_secret "actions_secrets" {
-  for_each = var.actions.secrets
-
-  repository = github_repository.repo.name
-
-  secret_name = each.key
-  plaintext_value = each.value
-}
-
 resource github_branch_protection "branch_protection" {
   repository_id = github_repository.repo.id
 
