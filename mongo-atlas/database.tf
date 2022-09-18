@@ -39,3 +39,28 @@ resource "mongodbatlas_cluster" "db_cluster" {
   backing_provider_name = local.cluster.backing_cloud_provider
   provider_region_name = local.cluster.cloud_region
 }
+
+resource "mongodbatlas_database_user" "db_users" {
+  count = length(var.users)
+
+  username = var.users[count.index].username
+  password = var.users[count.index].password
+
+  project_id = mongodbatlas_project.project.id
+  auth_database_name = "admin"
+
+  scopes {
+    name = var.cluster.name
+    type = "CLUSTER"
+  }
+
+  dynamic "roles" {
+    for_each = var.users[count.index].roles
+    iterator = each
+
+    content {
+      role_name = each.key
+      database_name = each.value
+    }
+  }
+}
