@@ -32,3 +32,13 @@ variable cluster {
       cloud_region = optional(string)
     })
 }
+
+variable users {
+  type = list(object({
+    username = string
+    password = string
+    roles = map(string)
+  }))
+
+  default = []
+}
