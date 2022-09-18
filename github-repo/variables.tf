@@ -70,6 +70,24 @@ variable actions {
   }
 }
 
+# Environments
+variable environments {
+  # key = environment name
+  # value = environment config
+  type = map(object({
+    wait_timer = optional(number)
+    protected_branches = optional(bool)
+    custom_branch_policies = optional(bool)
+
+    reviewers = object({
+      users = list(string)
+      teams = optional(list(string))
+    })
+  }))
+
+  default = {}
+}
+
 # Branch protection
 variable branches {
   type = map(object({

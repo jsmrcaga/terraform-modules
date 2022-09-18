@@ -16,4 +16,14 @@ locals {
       strict = false
     }
   })
+
+  environments = defaults(var.environments, {
+    protected_branches = true
+    custom_branch_policies = true
+
+    reviewers = {
+      users = ""
+      teams = ""
+    }
+  })
 }
