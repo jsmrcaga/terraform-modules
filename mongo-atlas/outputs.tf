@@ -6,6 +6,10 @@ output "cluster_id" {
   value = mongodbatlas_cluster.db_cluster.cluster_id
 }
 
+output "cluster" {
+  value = mongodbatlas_cluster.db_cluster
+}
+
 output "cluster_connection_string" {
   value = mongodbatlas_cluster.db_cluster.connection_strings[0].standard
 }
