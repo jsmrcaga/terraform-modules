@@ -1,3 +1,9 @@
+variable github {
+  type = object({
+    token = string  
+  })
+}
+
 variable name {
 	type = string
 }

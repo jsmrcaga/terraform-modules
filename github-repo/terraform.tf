@@ -8,3 +8,7 @@ terraform {
     }
   }
 }
+
+provider "github" {
+  token = var.github.token
+}
