@@ -12,7 +12,7 @@ data archive_file "dummy_zip" {
 
 resource aws_iam_role lambda_role {
     tags = {}
-    name = "${var.function_name}_role"
+    name = "${var.function_name}_lambda_role"
 
     assume_role_policy = <<EOF
 {
