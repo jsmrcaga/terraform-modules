@@ -11,5 +11,5 @@ terraform {
 
 provider "aws" {
   region = local.aws.region
-  shared_credentials_file = local.aws.shared_credentials_file
+  shared_credentials_files = [local.aws.shared_credentials_file]
 }

@@ -1,55 +1,34 @@
+module permissions {
+  source = "./permissions"
+
+  task_definition = {
+    family = var.task_definition.family
+  }
+}
+
 locals {
   task_definition_with_image = merge(
+    # Log confg comes first in case we override it later
+    {
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group = aws_cloudwatch_log_group.task_logs.name,
+          awslogs-region = local.aws.region,
+          awslogs-stream-prefix = local.task_definition.logs_prefix == "" ? var.task_definition.family : local.task_definition.logs_prefix
+        }
+      }
+    },
+    # Then the default task def (without logs obviously)
     local.default_task_definition,
+    # The parent's definition
     var.task_definition.definition,
+    # And finally the image from our newly created repository, not really important
+    # since it will be overridden later in deployments
     {
       image = "${aws_ecr_repository.ecr_repo.repository_url}/${var.ecr.image_name}:latest"
     }
   )
-
-  uses_fargate = local.service.launch_type == "FARGATE"
-}
-
-
-resource "aws_iam_role" "ecs_role_for_ecr" {
-  count = local.uses_fargate ? 1 : 0
-  name = "${replace(var.task_definition.family, "-", "_")}_role_ecs_for_ecr"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          # allows ECS to assume this role
-          Service = ["lambda.amazonaws.com"]
-        }
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "ecs_policy_for_ecr" {
-  count = local.uses_fargate ? 1 : 0
-  name = "${var.task_definition.family}_policy_ecs_for_ecr"
-
-  role = aws_iam_role.ecs_role_for_ecr[0].id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:BatchGetImage",
-      ]
-      Resource = "*"
-    }]
-  })
 }
 
 resource "aws_ecs_task_definition" "taskdef" {
@@ -57,16 +36,21 @@ resource "aws_ecs_task_definition" "taskdef" {
 
   container_definitions = jsonencode([local.task_definition_with_image])
 
-  cpu = local.cpu_values[local.task_definition.cpu]
-  memory = local.task_definition.memory
-  execution_role_arn = local.uses_fargate ? aws_iam_role.ecs_role_for_ecr[0].arn : local.task_definition.execution_arn
+  # For some reason using local.task_definition is creating unknown values
+  # and thus cannot create/update our resource
+  # so we went back to var for now
+  cpu = local.cpu_values[var.task_definition.cpu]
+  memory = var.task_definition.memory
 
-  network_mode = local.task_definition.network_mode // awwsvpc for fargate
+  task_role_arn = module.permissions.task_role.arn
+  execution_role_arn = module.permissions.ecs_agent_role.arn
 
-  requires_compatibilities = local.uses_fargate ? ["FARGATE"] : local.task_definition.requires_compatibilities
+  network_mode = var.task_definition.network_mode // awwsvpc for fargate
+
+  requires_compatibilities = var.task_definition.requires_compatibilities
 
   dynamic volume {
-    for_each = local.task_definition.volumes
+    for_each = var.task_definition.volumes
     iterator = each
 
     content {

@@ -33,6 +33,8 @@ locals {
     network_mode = "bridge"
 
     volumes = ""
+
+    logs_prefix = ""
   })
 
   default_task_definition = {
@@ -41,56 +43,10 @@ locals {
 
     memory = 256
     cpu = 256 // the whole thing
-    memoryReservation = null
-
-    entryPoint = ""
-    command = ""
-    workingDirectory = ""
 
     essential = true
 
     privileged = false
-
-    user = ""
-    ulimits = null
-    # ulimits = [{
-    #   name = ""
-    #   hardLimit = ""
-    #   softLimit = ""
-    # }]
-
-    dependsOn = null
-    # dependsOn = [{
-    #   containerName = ""
-    #   condition = ""
-    # }]
-
-    readonlyFilesystem = false
-
-    environmentFiles = null
-    # environmentFiles = [{
-    #   type = "s3"
-    #   value = "arn"
-    # }]
-
-    environment = ""
-    # environment = [{
-    #   name = "plep"
-    #   value = "plop"
-    # }]
-
-    secrets = null
-    # secrets = [{
-    #   name = "plep"
-    #   valueFrom = "asm_arn"
-    # }]
-
-    portMappings = null
-    # portMappings = [{
-    #   containerPort
-    #   hostPort
-    #   protocol = "tcp"
-    # }]
 
     healthCheck = {
       command = tolist(["CMD", "exit 0"])
@@ -101,35 +57,6 @@ locals {
     }
 
     disableNetworking = false
-
-    # Link between containers
-    links = ""
-    # links = ["name:alias"]
-
-    hostname = ""
-    dnsServers = null
-    # dnsServers = ["server1", "server2"]
-    dnsSearchDomains = null
-    # dnsServers = ["domain1", "domain2"]
-
-    extraHosts = null
-    # extraHosts = [{
-    #   hostname = "mywebsite"
-    #   ipAddress = "1.1.1.1"
-    # }]
-
-    mountPoints = null
-    # mountPoints = [{
-    #   sourceVolume = ""
-    #   containerPath = ""
-    #   readOnly = false
-    # }]
-
-    volumesFrom = null
-    # volumesFrom = [{
-    #   sourceContainer = ""
-    #   readOnly = false
-    # }]
   }
 
 }
