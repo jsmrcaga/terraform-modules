@@ -1,5 +1,5 @@
 resource "github_repository_environment" "environment" {
-  for_each = local.environments
+  for_each = var.environments
   environment = each.key
   repository = github_repository.repo.name
 

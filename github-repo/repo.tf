@@ -16,12 +16,28 @@ resource github_repository "repo" {
   topics = var.topics
 
   vulnerability_alerts = var.vulnerability_alerts
+
+  dynamic "pages" {
+    # null is handled on locals
+    for_each = local.pages
+    iterator = each
+
+    content {
+      cname = each.value.cname
+
+      # Cannot make this dynamic since at least 1 is required
+      source {
+        branch = coalesce(each.value.source.branch, "master")
+        path = coalesce(each.value.source.path, "/")
+      }
+    }
+  }
 }
 
 resource github_branch_protection "branch_protection" {
   repository_id = github_repository.repo.id
 
-  for_each = local.branches
+  for_each = var.branches
   pattern = each.key
   
   # Force status checks for admins
