@@ -1,7 +1,7 @@
 variable aws {
 	type = object({
 		shared_credentials_file = string
-		region = optional(string)
+		region = optional(string, "eu-west-3")
 	})
 }
 
