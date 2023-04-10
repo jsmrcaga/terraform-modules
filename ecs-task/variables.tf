@@ -1,22 +1,22 @@
 variable aws {
   type = object({
     shared_credentials_file = string
-    region = optional(string)
+    region = optional(string, "eu-west-3")
   })
 }
 
 variable task_definition {
   type = object({
     family = string
-    cpu = optional(string)
-    memory = optional(number)
+    cpu = optional(string, "0.5")
+    memory = optional(number, 1024)
 
-    network_mode = optional(string)
+    network_mode = optional(string, "bridge")
 
-    volumes = optional(map(string))
+    volumes = optional(map(string), {})
     requires_compatibilities = list(string)
 
-    logs_prefix = optional(string)
+    logs_prefix = optional(string, "")
     definition = any
   })
 }
@@ -30,7 +30,7 @@ variable cluster {
 variable ecr {
   type = object({
     name = string
-    image_tag_mutability = optional(string)
+    image_tag_mutability = optional(string, "IMMUTABLE")
     image_name = string
   })
 }
@@ -38,13 +38,14 @@ variable ecr {
 variable service {
   type = object({
     name = string
-    desired_count = optional(number)
-    health_check_grace_period_seconds = optional(number)
-    launch_type = optional(string)
-    platform_version = optional(string)
+    launch_type = optional(string, "FARGATE")
+    platform_version = optional(string, "LATEST")
 
-    deployment_maximum_percent = optional(number)
-    deployment_minimum_healthy_percent = optional(number)
+    desired_count = optional(number, 1)
+    health_check_grace_period_seconds = optional(number)
+
+    deployment_maximum_percent = optional(number, 200)
+    deployment_minimum_healthy_percent = optional(number, 50)
   })
 }
 

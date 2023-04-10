@@ -14,8 +14,8 @@ locals {
         logDriver = "awslogs"
         options = {
           awslogs-group = aws_cloudwatch_log_group.task_logs.name,
-          awslogs-region = local.aws.region,
-          awslogs-stream-prefix = local.task_definition.logs_prefix == "" ? var.task_definition.family : local.task_definition.logs_prefix
+          awslogs-region = var.aws.region,
+          awslogs-stream-prefix = var.task_definition.logs_prefix == "" ? var.task_definition.family : var.task_definition.logs_prefix
         }
       }
     },
@@ -36,7 +36,7 @@ resource "aws_ecs_task_definition" "taskdef" {
 
   container_definitions = jsonencode([local.task_definition_with_image])
 
-  # For some reason using local.task_definition is creating unknown values
+  # For some reason using var.task_definition is creating unknown values
   # and thus cannot create/update our resource
   # so we went back to var for now
   cpu = local.cpu_values[var.task_definition.cpu]
