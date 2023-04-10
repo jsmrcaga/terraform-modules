@@ -46,6 +46,12 @@ resource aws_lambda_function "lambda_function" {
     environment {
         variables = var.lambda_env
     }
+
+    lifecycle {
+        ignore_changes = [
+            filename
+        ]
+    }
 }
 
 # API Gateway Routing

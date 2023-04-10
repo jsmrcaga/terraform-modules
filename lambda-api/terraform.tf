@@ -1,6 +1,4 @@
 terraform {
-  experiments = [module_variable_optional_attrs]
-
   required_providers {
     aws = {
       source = "hashicorp/aws"
@@ -10,6 +8,6 @@ terraform {
 }
 
 provider "aws" {
-  region = local.aws.region
-  shared_credentials_files = [local.aws.shared_credentials_file]
+  region = var.aws.region
+  shared_credentials_files = [var.aws.shared_credentials_file]
 }
