@@ -39,6 +39,7 @@ resource aws_lambda_function "lambda_function" {
     handler = var.lambda_handler
     runtime = var.lambda_runtime
     filename = var.deploy_empty ? data.archive_file.dummy_zip[0].output_path : var.lambda_filename
+    timeout = var.lambda_timeout
 
     layers = []
     tags = {}
