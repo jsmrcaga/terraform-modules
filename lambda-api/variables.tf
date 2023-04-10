@@ -22,6 +22,12 @@ variable lambda_filename {
 	default = null
 }
 
+variable lambda_timeout {
+	type = number
+	# 30 seconds default, to match APIGateway
+	default = 30
+}
+
 variable lambda_env {
 	type = map(any)
 	default = {}
