@@ -1,8 +1,4 @@
 locals {
-  aws = defaults(var.aws, {
-    region = "eu-west-3"  
-  })
-
   # For some reason aws uses power 2 notation for cpu
   cpu_values = {
     "0.25" = 256
@@ -13,29 +9,6 @@ locals {
     "8" = 8192
     "16" = 16384
   }
-
-  ecr = defaults(var.ecr, {
-    image_tag_mutability = "IMMUTABLE"  
-  })
-
-  service = defaults(var.service, {
-    desired_count = 1
-    launch_type = "FARGATE"
-    platform_version = "LATEST"
-
-    deployment_maximum_percent = 200
-    deployment_minimum_healthy_percent = 50
-  })
-
-  task_definition = defaults(var.task_definition, {
-    cpu = "0.5"
-    memory = 1024
-    network_mode = "bridge"
-
-    volumes = ""
-
-    logs_prefix = ""
-  })
 
   default_task_definition = {
     # see:
