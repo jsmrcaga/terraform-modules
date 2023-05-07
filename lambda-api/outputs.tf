@@ -7,9 +7,9 @@ output "api_gateway_api_integration" {
 }
 
 output "domain_validation_records" {
-  value = module.custom_domain ? module.custom_domain[0].validation_records : null
+  value = length(module.custom_domain) > 0 ? module.custom_domain[0].validation_records : null
 }
 
 output "api_gateway_domain" {
-  value = module.custom_domain ? module.custom_domain[0].api_gateway_domain : null
+  value = length(module.custom_domain) > 0 ? module.custom_domain[0].api_gateway_domain : null
 }
