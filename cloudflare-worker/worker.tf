@@ -2,14 +2,23 @@ resource cloudflare_worker_script "worker_script" {
   name = var.script.name
   content = var.script.content
 
+  account_id = coalesce(var.script.account_id, var.cloudflare.default_account_id)
+
+  lifecycle {
+    ignore_changes = [
+      content
+    ]
+  }
+
   dynamic "kv_namespace_binding" {
     # Create a binding for every kv namespace
-    for_each = cloudflare_workers_kv_namespace.kv_namespaces
+    # for_each = cloudflare_workers_kv_namespace.kv_namespaces
+    for_each = module.kv
     iterator = each
 
     content {
-      name = each.value.title
-      namespace_id = each.value.id
+      name = each.value.kv_binding.binding
+      namespace_id = each.value.kv_binding.kv_id
     }
   }
 
@@ -22,11 +31,31 @@ resource cloudflare_worker_script "worker_script" {
       text = each.value
     }
   }
+
+  dynamic "service_binding" {
+    for_each = var.script.service_bindings
+    iterator = each
+
+    content {
+      name = each.value.name
+      service = each.value.service
+      environment = each.value.environment
+    }
+  }
 }
 
-resource cloudflare_workers_kv_namespace "kv_namespaces" {
-  for_each = var.kv_namespaces
-  title = each.value
+module kv {
+  source = "./kv"
+
+  count = length(local.kv_namespaces)
+
+  title = local.kv_namespaces[count.index].title
+  account_id = local.kv_namespaces[count.index].account_id
+  binding = local.kv_namespaces[count.index].binding
+
+  providers = {
+    cloudflare = cloudflare
+  }
 }
 
 resource cloudflare_worker_route "worker_route" {
@@ -39,7 +68,6 @@ resource cloudflare_worker_route "worker_route" {
 
   script_name = cloudflare_worker_script.worker_script.name
 }
-
 
 # DNS record
 resource cloudflare_record "cloudflare_dns_record" {

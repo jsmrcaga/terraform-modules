@@ -1,12 +1,20 @@
 locals {
-  # Will replace `zone_id` on every item of the dns record list
-  dns_records = defaults(var.dns_records, {
-    zone_id = var.cloudflare.default_zone_id  
-    proxied = true
-  })
+  routes = var.routes == null ? [] : [ for route in var.routes: {
+    zone_id = coalesce(route.zone_id, var.cloudflare.default_zone_id)
+    pattern = route.pattern
+  }]
 
-  # Will replace `zone_id` on every item of the route list
-  routes = defaults(var.routes, {
-    zone_id = var.cloudflare.default_zone_id
-  })
+  dns_records = var.dns_records == null ? [] : [ for record in var.dns_records: {
+    name = record.name
+    type = record.type
+    value = record.value
+    proxied = record.proxied
+    zone_id = coalesce(record.zone_id, var.cloudflare.default_zone_id)
+  }]
+
+  kv_namespaces = var.kv_namespaces == null ? [] : [ for kv in var.kv_namespaces: {
+    title = kv.title
+    binding = kv.binding
+    account_id = coalesce(kv.account_id, var.cloudflare.default_account_id)
+  }]
 }
