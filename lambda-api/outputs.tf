@@ -13,3 +13,11 @@ output "domain_validation_records" {
 output "api_gateway_domain" {
   value = length(module.custom_domain) > 0 ? module.custom_domain[0].api_gateway_domain : null
 }
+
+output "domain_certificate" {
+  value = length(module.custom_domain) > 0 ? module.custom_domain[0].certificate : null
+}
+
+output "domain_validation" {
+  value = length(module.custom_domain) > 0 ? module.custom_domain[0].domain_validation : null
+}
