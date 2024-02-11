@@ -10,10 +10,9 @@ variable host {
   type = string
 }
 
-variable cron_schedule {
-  type = string
-}
-
-variable command {
-  type = string
+variable crons {
+  type = list(object({
+    cron_schedule = string
+    command = string
+  }))
 }
