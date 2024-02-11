@@ -22,14 +22,14 @@ module env_vars {
   value = each.value
 }
 
+# We need to combine all crons into a single array
+# Since there is a race condition and only 1 cron ends up being written
 module crons {
-  for_each = local.cron_map
   source = "../cron"
 
   username = var.ssh.username
   private_key = var.ssh.private_key
   host = var.ssh.host
 
-  command = each.value.command
-  cron_schedule = each.value.cron_schedule
+  crons = var.crons
 }
