@@ -159,7 +159,8 @@ variable template {
 # Actions
 variable actions {
   type = object({
-    secrets = map(string)  
+    secrets = optional(map(string), {})
+    variables = optional(map(string), {})
   })
 
   default = {
