@@ -127,7 +127,7 @@ variable gitignore_template {
 
 variable license_template {
   type = string
-  default = "mit"
+  default = null
 }
 
 variable archived {
