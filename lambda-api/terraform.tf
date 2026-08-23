@@ -2,12 +2,7 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      version = "~> 5.60.0"
+      version = "~> 6.60.0"
     }
   }
-}
-
-provider "aws" {
-  region = var.aws.region
-  shared_credentials_files = [var.aws.shared_credentials_file]
 }
